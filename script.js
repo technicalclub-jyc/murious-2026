@@ -1,24 +1,12 @@
 /* ═══════════════════════════════════════════════════════
-   MURIOUS 2026 — Script v2
-   Scroll-controlled animation + Magic Wand Cursor
+   MURIOUS 2026 — Script v3
+   Magic Wand Cursor
    ═══════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  // ── Config ──
-  const TOTAL_FRAMES = 192;
-  const FRAME_PATH = 'animation/';
-
   // ── State ──
-  const frames = [];
-  let loadedCount = 0;
-  let loaderDismissed = false;
-  const pageLoadTime = Date.now();
-  let currentFrame = 0;
-  let targetFrame = 0;
-  let canvas, ctx;
-  let docHeight = 0;
   let windowH = window.innerHeight;
 
   // Wand state
@@ -27,148 +15,6 @@
   let trailCanvas, trailCtx;
   let trailPoints = [];
 
-  // ════════════════════════════════════════════════════
-  // FRAME PRELOADER
-  // ════════════════════════════════════════════════════
-  function getDelayForFrame(i) {
-    const mod = i % 5;
-    return (mod === 1 || mod === 4) ? '0.041s' : '0.042s';
-  }
-
-  function preloadFrames() {
-    let batchIndex = 0;
-    const BATCH_SIZE = 24;
-
-    function loadBatch() {
-      const start = batchIndex * BATCH_SIZE;
-      const end = Math.min(start + BATCH_SIZE, TOTAL_FRAMES);
-
-      for (let i = start; i < end; i++) {
-        const img = new Image();
-        const padded = String(i).padStart(3, '0');
-        const delay = getDelayForFrame(i);
-        img.src = `${FRAME_PATH}frame_${padded}_delay-${delay}.jpg`;
-        img.onload = () => {
-          loadedCount++;
-          if (loadedCount === 1) drawFrame(0);
-          // Dismiss loader once first batch is ready AND at least 3s have passed
-          if (loadedCount >= 24 && !loaderDismissed) {
-            loaderDismissed = true;
-            const elapsed = Date.now() - pageLoadTime;
-            const remaining = Math.max(0, 3000 - elapsed);
-            setTimeout(() => {
-              const loader = document.getElementById('pageLoader');
-              if (loader) loader.classList.add('hidden');
-            }, remaining);
-          }
-        };
-        img.onerror = () => {
-          // Try alternate delay
-          const alt = delay === '0.042s' ? '0.041s' : '0.042s';
-          img.src = `${FRAME_PATH}frame_${padded}_delay-${alt}.jpg`;
-        };
-        frames[i] = img;
-      }
-
-      batchIndex++;
-      if (end < TOTAL_FRAMES) {
-        requestAnimationFrame(loadBatch);
-      }
-    }
-
-    loadBatch();
-  }
-
-  // ════════════════════════════════════════════════════
-  // CANVAS RENDERING
-  // ════════════════════════════════════════════════════
-  function initCanvas() {
-    canvas = document.getElementById('heroCanvas');
-    ctx = canvas.getContext('2d');
-    resizeCanvas();
-  }
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    drawFrame(currentFrame);
-  }
-
-  function drawFrame(index) {
-    if (!ctx) return;
-    const img = frames[index];
-    if (!img || !img.complete || !img.naturalWidth) return;
-
-    const cw = canvas.width;
-    const ch = canvas.height;
-    const iw = img.naturalWidth;
-    const ih = img.naturalHeight;
-
-    // Cover fit
-    const scale = Math.max(cw / iw, ch / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
-
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, dx, dy, dw, dh);
-  }
-
-  // ════════════════════════════════════════════════════
-  // SCROLL-CONTROLLED ANIMATION (forward + reverse)
-  // ════════════════════════════════════════════════════
-  function updateDocHeight() {
-    docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  }
-
-  function handleScroll() {
-    const scrollY = window.scrollY;
-    const progress = docHeight > 0 ? scrollY / docHeight : 0;
-    targetFrame = Math.min(
-      Math.round(progress * (TOTAL_FRAMES - 1)),
-      TOTAL_FRAMES - 1
-    );
-  }
-
-  // Smooth interpolation loop for animation frames
-  function animationLoop() {
-    // Smoothly interpolate towards target frame
-    if (currentFrame !== targetFrame) {
-      const diff = targetFrame - currentFrame;
-      // Move at least 1 frame, but smooth for large jumps
-      const step = Math.sign(diff) * Math.max(1, Math.abs(diff) * 0.15);
-      currentFrame = Math.round(currentFrame + step);
-      currentFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, currentFrame));
-      drawFrame(currentFrame);
-    }
-
-    requestAnimationFrame(animationLoop);
-  }
-
-  // ════════════════════════════════════════════════════
-  // PARALLAX FOG LAYERS
-  // ════════════════════════════════════════════════════
-  function updateParallax() {
-    const scrollY = window.scrollY;
-    const fogBack = document.querySelector('.bg-fog-back');
-    const fogFront = document.querySelector('.bg-fog-front');
-
-    if (fogBack) {
-      fogBack.style.transform = `translateY(${scrollY * -0.15}px)`;
-    }
-    if (fogFront) {
-      fogFront.style.transform = `translateY(${scrollY * -0.25}px)`;
-    }
-
-    // Hero content parallax
-    const heroContent = document.querySelector('.hero-content');
-    if (heroContent && scrollY < windowH) {
-      const p = scrollY / (windowH * 0.6);
-      heroContent.style.opacity = Math.max(0, 1 - p);
-      heroContent.style.transform = `translateY(${scrollY * 0.35}px)`;
-    }
-  }
 
   // ════════════════════════════════════════════════════
   // FLOATING PARTICLES
@@ -208,6 +54,7 @@
 
     // Trail canvas
     trailCanvas = document.getElementById('wandTrail');
+    if(!trailCanvas) return; // safeguard
     trailCtx = trailCanvas.getContext('2d');
     resizeTrailCanvas();
 
@@ -235,13 +82,13 @@
 
     // Click — switch to casting wand + spawn sparkles
     document.addEventListener('mousedown', (e) => {
-      wand.classList.add('casting');
+      if(wand) wand.classList.add('casting');
       spawnSparkles(e.clientX, e.clientY, sparkleContainer);
       spawnBurst(e.clientX, e.clientY, sparkleContainer);
     });
 
     document.addEventListener('mouseup', () => {
-      setTimeout(() => wand.classList.remove('casting'), 150);
+      if(wand) setTimeout(() => wand.classList.remove('casting'), 150);
     });
 
     // Animate wand position smoothly
@@ -250,11 +97,15 @@
       wandX += (mouseX - wandX) * 0.35;
       wandY += (mouseY - wandY) * 0.35;
 
-      wand.style.left = wandX + 'px';
-      wand.style.top = wandY + 'px';
+      if(wand) {
+        wand.style.left = wandX + 'px';
+        wand.style.top = wandY + 'px';
+      }
 
-      shadow.style.left = (wandX + 12) + 'px';
-      shadow.style.top = (wandY + 36) + 'px';
+      if(shadow) {
+        shadow.style.left = (wandX + 12) + 'px';
+        shadow.style.top = (wandY + 36) + 'px';
+      }
 
       // Draw trail
       drawTrail();
@@ -303,6 +154,7 @@
   }
 
   function spawnSparkles(x, y, container) {
+    if(!container) return;
     const count = 12 + Math.floor(Math.random() * 8);
     for (let i = 0; i < count; i++) {
       const spark = document.createElement('div');
@@ -333,6 +185,7 @@
   }
 
   function spawnBurst(x, y, container) {
+    if(!container) return;
     const burst = document.createElement('div');
     burst.classList.add('spell-burst');
     burst.style.left = x + 'px';
@@ -349,6 +202,8 @@
     const toggle = document.getElementById('navToggle');
     const links = document.getElementById('navLinks');
     const navAnchors = document.querySelectorAll('.nav-link');
+
+    if(!navbar || !toggle || !links) return;
 
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('scrolled', window.scrollY > 80);
@@ -501,48 +356,156 @@
   }
 
   // ════════════════════════════════════════════════════
+  // SCROLL LOCK + CASTLE POP-UP 
+  // ════════════════════════════════════════════════════
+  function initScrollBehavior() {
+    const castle = document.querySelector('.hero-castle');
+    const heroContent = document.querySelector('.hero-content');
+    
+    const sections = Array.from(document.querySelectorAll('.section'));
+    const maxStep = sections.length; 
+    let step = 0;
+    let isLocked = false;
+
+    function lockFor(ms) {
+      isLocked = true;
+      setTimeout(() => { isLocked = false; }, ms);
+    }
+
+    function setCastleState(risen) {
+      if (!castle || !heroContent) return;
+      const ltree = document.querySelector('.hero-tree-left');
+      const rtree = document.querySelector('.hero-tree-right');
+      const lclif = document.querySelector('.hero-clif-left');
+      const rclif = document.querySelector('.hero-clif-right');
+      if (risen) {
+        const moveUp = windowH * 0.8;
+        castle.style.transform = `translateX(-50%) translateY(-${moveUp}px) scale(2.8)`;
+        heroContent.style.filter = 'blur(0px)';
+        heroContent.style.opacity = '0';
+        
+        if (ltree) ltree.style.transform = 'translateX(0)';
+        if (rtree) rtree.style.transform = 'translateX(0)';
+ 
+        if (lclif) lclif.style.transform = 'translateX(0)';
+        if (rclif) rclif.style.transform = 'translateX(0)';
+      } else {
+        castle.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+        heroContent.style.filter = 'blur(0px)';
+        heroContent.style.opacity = '1';
+    
+        if (ltree) ltree.style.transform = 'translateX(-110%)';
+        if (rtree) rtree.style.transform = 'translateX(110%)';
+       
+        if (lclif) lclif.style.transform = 'translateX(-110%)';
+        if (rclif) rclif.style.transform = 'translateX(110%)';
+      }
+    }
+
+    function goTo(newStep) {
+      if (isLocked) return;
+      newStep = Math.max(0, Math.min(maxStep, newStep));
+      if (newStep === step) return;
+      const prevStep = step;
+      step = newStep;
+
+      if (step === 0) {
+        
+        setCastleState(false);
+        window.scrollTo({ top: 0 });
+        lockFor(900);
+      } else if (step === 1) {
+        // Castle rises up, text blurs
+        setCastleState(true);
+        window.scrollTo({ top: 0 });
+        lockFor(900);
+      } else {
+        
+        const prevStep = step;
+        const target = sections[step - 1];
+        if (target) {
+          const container = target.querySelector('.section-container');
+          // Only blur when coming from castle (step 1 → step 2)
+          if (prevStep === 1 && container) {
+            container.classList.add('section-entering');
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => container.classList.remove('section-entering'), 350);
+          } else {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+        lockFor(900);
+      }
+    }
+
+
+  // ════════════════════════════════════════════════════
+  // SCROLL LOCK
+  // ════════════════════════════════════════════════════
+    
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY > 8)       goTo(step + 1);
+      else if (e.deltaY < -8) goTo(step - 1);
+    }, { passive: false });
+
+    // ── Keyboard ──
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        goTo(step + 1);
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        goTo(step - 1);
+      }
+    });
+
+    // ── Touch ──
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchend', (e) => {
+      const delta = touchStartY - e.changedTouches[0].clientY;
+      if (delta > 40)       goTo(step + 1);
+      else if (delta < -40) goTo(step - 1);
+    });
+
+    // Init: castle hidden
+    setCastleState(false);
+  }
+
+
+  
+  // ════════════════════════════════════════════════════
   // INIT
   // ════════════════════════════════════════════════════
   function init() {
     windowH = window.innerHeight;
 
-    initCanvas();
-    preloadFrames();
+    // Hides the loading screen safely after 1.5 seconds 
+    // since we removed the 192-frame loading logic.
+    setTimeout(() => {
+        const loader = document.getElementById('pageLoader');
+        if (loader) loader.classList.add('hidden');
+    }, 1500);
+
     createParticles();
     initWandCursor();
+    initScrollBehavior();
     initNavbar();
     initReveal();
     initScheduleTabs();
     initForms();
     initSmoothScroll();
 
-    updateDocHeight();
-
-    // Start animation interpolation loop
-    animationLoop();
-
-    // Scroll handler (throttled via rAF)
-    let scrollTicking = false;
-    window.addEventListener('scroll', () => {
-      if (!scrollTicking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          updateParallax();
-          scrollTicking = false;
-        });
-        scrollTicking = true;
-      }
-    }, { passive: true });
-
-    // Resize
+    // Resize handler
     let resizeTimeout;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         windowH = window.innerHeight;
-        resizeCanvas();
         resizeTrailCanvas();
-        updateDocHeight();
       }, 150);
     });
   }
@@ -554,3 +517,4 @@
   }
 
 })();
+
