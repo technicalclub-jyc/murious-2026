@@ -638,6 +638,7 @@ img {
   background: rgba(212, 168, 83, 0.08);
   color: var(--gold);
   border: 1.5px solid var(--gold);
+  white-space: nowrap;
 }
 
 .btn-outline:hover {
