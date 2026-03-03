@@ -1598,3 +1598,210 @@ img {
     align-items: center;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MURIOUS 2026 — EVENTS SECTION UPGRADE
+   Paste this at the VERY BOTTOM of your styles.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Events Grid ── */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+@media (max-width: 900px) { .events-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .events-grid { grid-template-columns: 1fr; } }
+
+/* ── Base Card ── */
+.event-card {
+  position: relative;
+  border: 1.5px solid rgba(255,255,255,0.55) !important;
+  border-radius: 20px !important;
+  padding: 26px 22px 24px !important;
+  background: rgba(8,15,32,0.75) !important;
+  backdrop-filter: blur(18px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  transition: transform 0.32s cubic-bezier(.22,.68,0,1.2), box-shadow 0.32s ease, border-color 0.32s ease !important;
+}
+
+/* Top shimmer line */
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+/* Corner star */
+.event-card::after {
+  content: '✦';
+  position: absolute;
+  top: 13px; right: 15px;
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.2);
+  transition: color 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+
+/* Hover state */
+.event-card:hover {
+  transform: translateY(-9px) scale(1.025) !important;
+  border-color: rgba(255,255,255,0.9) !important;
+}
+.event-card:hover::before { opacity: 1; }
+.event-card:hover::after  { color: rgba(255,255,255,0.65); transform: rotate(90deg); }
+
+/* Per-card glow color on hover */
+.event-card:nth-child(1):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(14,154,167,0.22) !important; }
+.event-card:nth-child(2):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(50,34,170,0.22) !important; }
+.event-card:nth-child(3):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(190,34,146,0.22) !important; }
+.event-card:nth-child(4):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(196,72,120,0.22) !important; }
+.event-card:nth-child(5):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(120,152,32,0.22) !important; }
+.event-card:nth-child(6):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(26,150,96,0.22) !important; }
+.event-card:nth-child(7):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(192,32,64,0.22) !important; }
+.event-card:nth-child(8):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(192,32,120,0.22) !important; }
+.event-card:nth-child(9):hover  { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(34,88,200,0.22) !important; }
+.event-card:nth-child(10):hover { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(120,32,200,0.22) !important; }
+
+/* ── Event Icon ── */
+.event-icon {
+  font-size: 2.4rem !important;
+  margin-bottom: 2px !important;
+  line-height: 1 !important;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
+  transition: transform 0.3s ease;
+}
+.event-card:hover .event-icon { transform: scale(1.15) rotate(-5deg); }
+
+/* ── Event Name Banner ── */
+.event-card h3 {
+  font-family: 'Cinzel', serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.13em !important;
+  text-transform: uppercase !important;
+  padding: 10px 16px !important;
+  border-radius: 50px !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  margin: 10px 0 14px !important;
+  border: 1.5px solid rgba(255,255,255,0.2) !important;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  transition: filter 0.3s, transform 0.3s;
+}
+.event-card:hover h3 { filter: brightness(1.15); transform: scale(1.02); }
+
+/* Banner colors — one per event */
+.event-card:nth-child(1)  h3 { background: linear-gradient(100deg,#093e48,#0b8f9e) !important; color:#9ef0f8 !important; box-shadow:0 4px 20px rgba(14,154,167,.4); }
+.event-card:nth-child(2)  h3 { background: linear-gradient(100deg,#130c50,#3222aa) !important; color:#b8b0ff !important; box-shadow:0 4px 20px rgba(50,34,170,.4); }
+.event-card:nth-child(3)  h3 { background: linear-gradient(100deg,#580848,#be2292) !important; color:#ffc8f2 !important; box-shadow:0 4px 20px rgba(190,34,146,.4); }
+.event-card:nth-child(4)  h3 { background: linear-gradient(100deg,#621438,#c44878) !important; color:#ffd0e8 !important; box-shadow:0 4px 20px rgba(196,72,120,.4); }
+.event-card:nth-child(5)  h3 { background: linear-gradient(100deg,#2e3c0a,#789820) !important; color:#e8ff99 !important; box-shadow:0 4px 20px rgba(120,152,32,.4); }
+.event-card:nth-child(6)  h3 { background: linear-gradient(100deg,#083c22,#1a9660) !important; color:#a0ffd0 !important; box-shadow:0 4px 20px rgba(26,150,96,.4); }
+.event-card:nth-child(7)  h3 { background: linear-gradient(100deg,#540818,#c02040) !important; color:#ffc0cc !important; box-shadow:0 4px 20px rgba(192,32,64,.4); }
+.event-card:nth-child(8)  h3 { background: linear-gradient(100deg,#540834,#c02078) !important; color:#ffc0e8 !important; box-shadow:0 4px 20px rgba(192,32,120,.4); }
+.event-card:nth-child(9)  h3 { background: linear-gradient(100deg,#082258,#2258c8) !important; color:#c8dcff !important; box-shadow:0 4px 20px rgba(34,88,200,.4); }
+.event-card:nth-child(10) h3 { background: linear-gradient(100deg,#2c0858,#7820c8) !important; color:#e0c0ff !important; box-shadow:0 4px 20px rgba(120,32,200,.4); }
+
+/* ── Event Type Badge ── */
+.event-type {
+  font-family: 'Raleway', sans-serif !important;
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: rgba(180,200,240,0.65) !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 6px !important;
+  padding: 3px 10px !important;
+  margin-bottom: 13px !important;
+  display: inline-block !important;
+}
+
+/* ── Subtle divider line ── */
+/* Add <div class="event-divider"></div> in HTML after each .event-type span */
+.event-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  margin: 0 0 13px;
+  flex-shrink: 0;
+}
+
+/* ── Description text ── */
+.event-card p {
+  font-family: 'Raleway', sans-serif !important;
+  font-size: 0.83rem !important;
+  line-height: 1.7 !important;
+  color: rgba(200,215,240,0.78) !important;
+  flex-grow: 1;
+}
+
+/* ── Featured HackVortex ── */
+.featured-event {
+  border: 1.5px solid rgba(212,168,67,0.5) !important;
+  border-radius: 20px !important;
+  padding: 40px 44px !important;
+  margin-bottom: 56px !important;
+  background: rgba(8,15,32,0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  overflow: hidden !important;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.featured-event:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(212,168,67,0.12) !important;
+}
+.featured-event::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -80px; right: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(212,168,67,0.1) 0%, transparent 65%) !important;
+  pointer-events: none;
+}
+.featured-event h3 {
+  font-family: 'Cinzel Decorative', serif !important;
+  font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #f5d060, #e8a020, #f5d060) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: goldShimmer 4s linear infinite;
+  margin: 10px 0 16px !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  width: auto !important;
+  text-align: left !important;
+  letter-spacing: 0.04em !important;
+}
+@keyframes goldShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ── Faculty small grid ── */
+.events-grid-small {
+  grid-template-columns: repeat(2, 1fr) !important;
+  max-width: 700px !important;
+  margin: 0 auto !important;
+}
+@media (max-width: 560px) { .events-grid-small { grid-template-columns: 1fr !important; } }
