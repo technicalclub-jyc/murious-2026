@@ -1087,22 +1087,95 @@ img {
   margin-bottom: 28px;
 }
 
-.sponsors-grid {
+/* .sponsors-grid {
   display: flex;
   justify-content: center;
   gap: 24px;
   flex-wrap: wrap;
-}
+} */
 
-.sponsor-card {
+/* .sponsor-card {
   padding: 36px 48px;
+  position: relative; */
+  /* .sponsor-card {
+  padding: 20px 30px;
   position: relative;
-}
+  min-width: 140px;
+} */
+
 
 .sponsors-grid-title .sponsor-card {
   padding: 48px 80px;
   font-size: 1.4rem;
 }
+.sponsor-card img {
+  width: 100px;
+  height: auto;
+  max-height: 90px;
+  object-fit: contain;
+  display: block;
+}
+/* === CLEAN SPONSOR CAROUSEL === */
+
+.sponsors-carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 30px 0;
+}
+
+.sponsors-track {
+  display: flex;
+  gap: 30px;
+  width: max-content;   /* VERY IMPORTANT */
+  animation: scrollSponsors 25s linear infinite;
+  will-change: transform;
+}
+
+.sponsors-track:hover {
+  animation-play-state: paused;
+}
+
+/* .sponsor-card {
+  min-width: 140px;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+ .sponsor-card {
+  width: 220px;          /* fixed width */
+  height: 180px;         /* fixed height */
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* .sponsor-card img {
+  width: 100px;
+  height: auto;
+  max-height: 70px;
+  object-fit: contain;
+} */
+ .sponsor-card img {
+  max-width: 120px;
+  max-height: 70px;
+  object-fit: contain;
+}
+
+/* Infinite smooth animation */
+@keyframes scrollSponsors {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 
 .sponsors-grid-gold .sponsor-card {
   padding: 36px 56px;
