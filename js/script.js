@@ -35,7 +35,11 @@ function initFirebase() {
 (function () {
   'use strict';
 
-  // ── State ──
+  // ── Device Detection & Performance Optimization ──
+  const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isLowEndMobile = isMobile && (navigator.deviceMemory < 8 || navigator.hardwareConcurrency < 4);
+  
+  // State
   let windowH = window.innerHeight;
 
   // Wand state
@@ -52,7 +56,12 @@ function initFirebase() {
     const container = document.getElementById('bgParticles');
     if (!container) return;
 
-    for (let i = 0; i < 39; i++) {
+    // Optimize particle count for mobile
+    let particleCount = 39;
+    if (isMobile) particleCount = 20;
+    if (isLowEndMobile) particleCount = 12;
+
+    for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
       p.classList.add('particle');
       const size = Math.random() * 4.2 + 2.1;
@@ -103,8 +112,9 @@ function initFirebase() {
           : `rgba(139,92,246,${0.2 + Math.random() * 0.2})`
       });
 
-      // Limit trail length
-      if (trailPoints.length > 20) {
+      // Limit trail length (optimize for mobile)
+      const maxTrail = isMobile ? 12 : 20;
+      if (trailPoints.length > maxTrail) {
         trailPoints.shift();
       }
     }, { passive: true });
@@ -136,8 +146,10 @@ function initFirebase() {
         shadow.style.top = (wandY + 36) + 'px';
       }
 
-      // Draw trail
-      drawTrail();
+      // Draw trail (skip on very low-end mobile for better performance)
+      if (!isLowEndMobile) {
+        drawTrail();
+      }
 
       requestAnimationFrame(updateWand);
     }
@@ -173,9 +185,11 @@ function initFirebase() {
       trailCtx.globalAlpha = pt.alpha;
       trailCtx.fill();
 
-      // Glow
-      trailCtx.shadowBlur = pt.size * 4;
-      trailCtx.shadowColor = pt.color;
+      // Glow (optimize for mobile — skip on low-end devices)
+      if (!isLowEndMobile) {
+        trailCtx.shadowBlur = pt.size * 4;
+        trailCtx.shadowColor = pt.color;
+      }
     }
 
     trailCtx.globalAlpha = 1;
@@ -184,7 +198,20 @@ function initFirebase() {
 
   function spawnSparkles(x, y, container) {
     if (!container) return;
-    const count = 12 + Math.floor(Math.random() * 8);
+    
+    // Optimize sparkle count for mobile
+    let baseCount = 12;
+    let maxCount = 8;
+    if (isMobile) {
+      baseCount = 8;
+      maxCount = 4;
+    }
+    if (isLowEndMobile) {
+      baseCount = 6;
+      maxCount = 2;
+    }
+    
+    const count = baseCount + Math.floor(Math.random() * maxCount);
     for (let i = 0; i < count; i++) {
       const spark = document.createElement('div');
       spark.classList.add('sparkle');
@@ -543,62 +570,68 @@ function initFirebase() {
     const evtCardData = [
       {
         title: "THE TRIWIZARD QUEST",
-        img: "images/TREASURE.png",
+        img: "images/TREASURE.webp",
         desc: "The Triwizard Quest is a treasure hunt where wit, courage, and teamwork decide the ultimate champions. Participants face a series of clues, mysterious challenges, and hidden tasks scattered across the grounds."
       },
 
       {
         title: "E-SPORTS",
-        img: "images/console.png",
+        img: "images/console.webp",
         desc: "Step into the ultimate digital battlefield where strategy, precision, and reflexes define true champions. Our Esports Championship brings together the fiercest gamers on campus to compete in electrifying titles like Valorant, FIFA, Clash Royale, and Tekken."
       },
 
       {
         title: "REEL RUMBLE",
-        img: "images/reel.png",
+        img: "images/reel.webp",
         desc: "Create a compelling reel around a surprise theme. Use visuals, music, and effects to engage and captivate your audience. Judged on creativity, relevance, and impact. Grab your camera and let your imagination flow!"
       },
 
       {
         title: "FRAME IT",
-        img: "images/camera.png",
+        img: "images/camera.webp",
         desc: "Participants are required to roam around the campus and capture the best photograph based on the theme provided to them, ensuring it is visually appealing to everyone. The best shot wins!"
       },
 
       {
         title: "CODE ROYALE",
-        img: "images/laptop.png",
+        img: "images/laptop.webp",
         desc: "Code Royale is a high-intensity 1v1 coding battle where participants compete in knockout rounds to prove their dominance. With limited time and rising pressure, only the fastest and most accurate coder survives each round."
       },
 
       {
         title: "PROMPT TO DESIGN",
-        img: "images/cloud.png",
+        img: "images/cloud.webp",
         desc: "Prompt to Design is an AI-based challenge where participants recreate a given image using only text prompts. Contestants observe the reference image and generate it through an AI tool."
       },
 
       {
-        title: "STORAGE WARS",
-        img: "images/sword.png",
-        desc: "Students engage in bidding on storage containers using fake currency, inspecting only the exterior. Teams of 2–4 collaborate, emphasizing strategic thinking and resource management."
+        title: "CODING PREMIER LEAGUE",
+        img: "images/cplcode.webp",
+        desc: "Coding Premier League (CPL) is a competitive programming event by the IEEE Student Branch that combines coding with strategy. Participants use points to bid on problems based on their confidence, balancing risk and reward to maximize their score."
       },
 
       {
         title: "CODE IN DARK",
-        img: "images/codeinblack.png",
+        img: "images/codeinblack.webp",
         desc: "Code in Dark is a two-person team event that tests coding skills and communication. One teammate reads the problem and dictates the code, while the other, blindfolded, types it exactly as instructed."
       },
 
       {
         title: "TECH TRIVIA",
-        img: "images/QUIZ.png",
+        img: "images/QUIZ.webp",
         desc: "A fast-paced quiz game inspired by the KBC format, featuring multiple rounds of coding, general knowledge, and tech current affairs. Participants earn points each round, with a leaderboard deciding the ultimate winner."
       },
 
       {
         title: "OPEN MIC",
-        img: "images/openmic1.png",
+        img: "images/openmic1.webp",
         desc: "In collaboration with the Theatre and Music Club, this stage welcomes poetry, storytelling, monologues, music, and everything in between. Step into the spotlight, share your story, and let your art be heard."
+      },
+
+      {
+        title: "HACKATHON",
+        img: "images/hack.webp",
+        desc: "A thrilling 24-hour coding marathon where innovation meets competition! Teams collaborate to build groundbreaking solutions from zero to hero. Unlimited creativity, mentorship, snacks, and cash prizes await the winners. Bring your ideas and coding superpowers!"
       }
     ];
 
@@ -705,8 +738,10 @@ ${evtCardData[i].title}
     function animateEvtGallery() {
       const rect = scrollContainer.getBoundingClientRect();
 
-      // Stronger optimization for mobile
-      if (rect.bottom < -400 || rect.top > window.innerHeight + 400) return;
+      // More aggressive culling for mobile
+      const cullDistance = isMobile ? 600 : 400;
+      if (rect.bottom < -cullDistance || rect.top > window.innerHeight + cullDistance) return;
+      
       const containerHeight = scrollContainer.offsetHeight;
       const viewportHeight = window.innerHeight;
       const scrollableDistance = containerHeight - viewportHeight;
@@ -799,7 +834,8 @@ ${evtCardData[i].title}
     initEventGallery();
     document.querySelectorAll(".magic-particles").forEach(container => {
 
-      for (let i = 0; i < 6; i++) {
+      const particleCountPerCard = isLowEndMobile ? 3 : isMobile ? 5 : 6;
+      for (let i = 0; i < particleCountPerCard; i++) {
 
         const p = document.createElement("span");
 

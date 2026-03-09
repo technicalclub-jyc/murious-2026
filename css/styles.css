@@ -2351,7 +2351,7 @@ img {
 
 .evt-section-label {
   position: absolute;
-  top: 30px;
+  top: 70px;
   left: 40px;
   font-family: var(--font-heading);
   font-size: 0.75rem;
@@ -2373,8 +2373,8 @@ img {
 
 .evt-card {
   position: absolute;
-  width: 280px;
-  height: 380px;
+  width: 250px;
+  height: 350px;
   border-radius: var(--radius);
   overflow: hidden;
   will-change: transform, opacity;
@@ -2388,8 +2388,8 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 30px;
+  gap: 15px;
+  padding: 25px;
   background: var(--bg-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -2408,7 +2408,7 @@ img {
 }
 
 .evt-card-icon {
-  font-size: 4rem;
+  font-size: 3.2rem;
   filter: drop-shadow(0 4px 20px rgba(212, 168, 83, 0.4));
   position: relative;
   z-index: 2;
@@ -2419,7 +2419,7 @@ img {
   z-index: 2;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1.3;
@@ -2431,10 +2431,10 @@ img {
 /* ── Text panel ── */
 .evt-text-panel {
   position: absolute;
-  bottom: 100px;
-  left: 60px;
-  max-width: 400px;
-  z-index: 10;
+  bottom: 50px;
+  left: 70px;
+  max-width: 250px;
+  z-index: 20;
   will-change: transform, opacity;
 }
 
@@ -2473,7 +2473,7 @@ img {
 /* ── Card counter ── */
 .evt-card-counter {
   position: absolute;
-  top: 30px;
+  top: 90px;
   right: 40px;
   z-index: 20;
   font-family: var(--font-heading);
@@ -2518,7 +2518,7 @@ img {
 /* ── Bottom progress bar ── */
 .evt-bottom-bar {
   position: absolute;
-  bottom: 30px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
@@ -2559,7 +2559,7 @@ img {
 
   .evt-text-panel {
     left: 20px;
-    bottom: 85px;
+    bottom: 50px;
     max-width: 220px;
   }
 
@@ -2590,7 +2590,7 @@ img {
 
   @media (max-width:768px) {
     .event-scroll-container {
-      height: 850vh;
+      height: 1400vh;
     }
   }
 }
