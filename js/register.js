@@ -14,7 +14,7 @@ const firebaseConfig = {
   measurementId: "G-36RTV9Y354",
 };
 
-const RAZORPAY_KEY = "rzp_live_SODKZII24hVdSO";
+
 
 let db = null;
 
@@ -274,6 +274,14 @@ if (regForm) {
   regForm.addEventListener("submit", async function (e) {
 
     e.preventDefault();
+    /* PAYMENT SCREENSHOT VALIDATION */
+
+   const screenshot = document.getElementById("paymentScreenshot").files[0];
+
+   if(!screenshot){
+    alert("Please upload the payment screenshot.");
+    return;
+   }
 
     hideMessages();
 
@@ -396,92 +404,64 @@ if(!valid){
 
 
     const eventNames = selectedEvents.map((e) => e.name).join(", ");
-
-
-    const options = {
-
-      key: RAZORPAY_KEY,
-      amount: totalFee * 100,
-      currency: "INR",
-      name: "Murious 20.0",
-      description: selectedEvents[0].name + " Registration",
-
-      handler: async function (response) {
-
-        try {
-
-          if (db) {
-
-            const batch = db.batch();
-
-            for (const ev of selectedEvents) {
-
-              const docRef = db.collection("registrations").doc();
-
-              batch.set(docRef, {
-
-                name: name,
-                email: email,
-                phone: phone,
-                college: college,
-                participationType: participation,
-                teamMembers: teamMembers,
-                event: ev.name,
-                fee: ev.fee,
-                totalPaid: totalFee,
-                eventsInOrder: eventNames,
-                paymentId: response.razorpay_payment_id,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-
-              });
-
-            }
-
-            await batch.commit();
-
-          }
-
-        } catch (err) {
-
-          console.error("Firestore save error:", err);
-
+    
+    try {
+    
+         if (db) {
+    
+        const batch = db.batch();
+    
+        for (const ev of selectedEvents) {
+    
+          const docRef = db.collection("registrations").doc();
+    
+          batch.set(docRef, {
+    
+            name: name,
+            email: email,
+            phone: phone,
+            college: college,
+            participationType: participation,
+            teamMembers: teamMembers,
+            event: ev.name,
+            fee: ev.fee,
+            totalPaid: totalFee,
+            eventsInOrder: eventNames,
+            paymentMethod: "QR Screenshot",
+            paymentScreenshot: screenshot.name,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    
+          });
+    
         }
-
-        showLoading(false);
-
-        regForm.reset();
-
-        eventCheckboxes.forEach((cb) => (cb.checked = false));
-
-        feeDisplay.style.display = "none";
-
-        showSuccessMsg();
-
-      },
-
-      modal: {
-        ondismiss: function () {
-          showLoading(false);
-          showErrorMsg("Payment was cancelled. Registration not completed.");
-        },
-      },
-
-      prefill: {
-        name: name,
-        email: email,
-        contact: phone,
-      },
-
-      theme: {
-        color: "#d4a853",
-      },
-
-    };
-
-
-    const rzp = new Razorpay(options);
-
-    rzp.open();
+    
+        await batch.commit();
+    
+      }
+    
+      showLoading(false);
+    
+      regForm.reset();
+    
+      eventCheckboxes.forEach((cb) => (cb.checked = false));
+    
+      feeDisplay.style.display = "none";
+    
+      showSuccessMsg();
+    
+    } catch (err) {
+    
+      console.error("Firestore save error:", err);
+    
+      showErrorMsg("Registration failed. Try again.");
+    
+    }
+    
+    
+    
+    
+    
+    
 
   });
 
@@ -496,5 +476,19 @@ document.addEventListener("DOMContentLoaded", () => {
   generateStars();
 
   generateParticles();
+
+    /* QR BUTTON */
+  document.getElementById("showQRBtn").addEventListener("click", function () {
+
+    const selected = document.querySelectorAll('input[name="events"]:checked');
+
+    if(selected.length === 0){
+      alert("Please select an event first");
+      return;
+    }
+
+    document.getElementById("qrPayment").style.display = "block";
+
+  });
 
 });

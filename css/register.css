@@ -689,3 +689,37 @@ body {
 .invalid{
 border:2px solid red;
 }
+.qr-payment{
+  margin-top:30px;
+  text-align:center;
+}
+
+.qr-payment img{
+  width:220px;
+  margin:15px 0;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.qr-payment h3{
+  color:var(--gold);
+}
+
+.qr-payment p{
+  font-size:14px;
+  color:#bbb;
+}
+.qr-payment input[type="file"]{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;
+  width:100%;
+  background:rgba(255,255,255,0.05);
+  color:white;
+}
+
+.qr-payment{
+  margin-top:30px;
+  text-align:center;
+}

@@ -408,10 +408,28 @@
             <span class="fee-amount" id="feeAmount">₹0</span>
           </div>
 
-          <button type="submit" class="reg-submit" id="registerBtn">
-            <span class="btn-text">⚡ Register & Pay</span>
-            <span class="btn-magic">✦ Mischief Managed! ✦</span>
+          <button type="button" class="reg-submit" id="showQRBtn">
+            <span class="btn-text">⚡ Register</span>
+            <span class="btn-magic">✦ Continue to Payment ✦</span>
           </button>
+          
+          <div class="qr-payment" id="qrPayment" style="display:none">
+             <h3>Scan QR to Pay</h3>
+            <img src="assets/images/payment-qr.webp" alt="UPI QR Code">
+            <p>Please upload your payment screenshot after completing the payment.</p>
+            <div class="form-group">
+              <label for="paymentScreenshot">Upload Payment Screenshot</label>
+              <input 
+                type="file" 
+                id="paymentScreenshot" 
+                accept="image/*"
+                required
+              >
+            </div>
+            <button type="submit" class="reg-submit">
+              Submit Registration
+            </button>
+          </div>
         </form>
       </div>
 
@@ -436,7 +454,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="js/register.js"></script>
   </body>
 </html>
