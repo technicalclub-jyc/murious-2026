@@ -97,22 +97,113 @@ const participationType = document.getElementById("participationType");
 const teamSection = document.getElementById("teamSection");
 
 
-// ── Show / Hide Team Members ──
+// ── Filter Events by Participation Type ──
+function filterEvents() {
+  const type = participationType ? participationType.value : "single";
+  const allCards = document.querySelectorAll(".event-card");
+
+  allCards.forEach((card) => {
+    const cardType = card.getAttribute("data-type");
+    if (type === "team" && cardType === "solo") {
+      card.style.display = "none";
+      const cb = card.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = false;
+    } else if (type === "single" && cardType === "team") {
+      card.style.display = "none";
+      const cb = card.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = false;
+    } else {
+      card.style.display = "";
+    }
+  });
+
+  // Hide team section & reset when switching participation type
+  if (teamSection) {
+    teamSection.style.display = "none";
+    teamSection.innerHTML = "";
+  }
+
+  updateFeeDisplay();
+}
+
+
+// ── Show / Hide Team Members on Participation Type Change ──
 if (participationType) {
   participationType.addEventListener("change", function () {
-
-    if (this.value === "team") {
-      teamSection.style.display = "block";
-    } else {
-      teamSection.style.display = "none";
-    }
-
-    updateFeeDisplay();
+    filterEvents();
   });
 }
 
 
-// ── Allow Only One Event ──
+// ── Dynamically Build Team Member Fields ──
+function buildTeamMemberFields(maxMembers) {
+  if (!teamSection) return;
+  teamSection.innerHTML = "";
+
+  if (maxMembers <= 0) {
+    teamSection.style.display = "none";
+    return;
+  }
+
+  for (let i = 1; i <= maxMembers; i++) {
+    const memberNum = i + 1; // Display as Member 2, 3, 4... since registrant is Member 1
+    const nameGroup = document.createElement("div");
+    nameGroup.className = "form-group";
+    nameGroup.innerHTML = `<label>MEMBER ${memberNum} Full Name</label>
+      <input type="text" id="member${i}Name" placeholder="Member ${memberNum} full name" />`;
+
+    const emailGroup = document.createElement("div");
+    emailGroup.className = "form-group";
+    emailGroup.innerHTML = `<label>MEMBER ${memberNum} College Email Address</label>
+      <input type="email" id="member${i}Email" placeholder="Member ${memberNum} college email" />`;
+
+    const rollGroup = document.createElement("div");
+    rollGroup.className = "form-group";
+    rollGroup.innerHTML = `<label>MEMBER ${memberNum} Roll No</label>
+      <input type="text" id="member${i}Roll" placeholder="Member ${memberNum} roll no" />`;
+
+    const phoneGroup = document.createElement("div");
+    phoneGroup.className = "form-group";
+    phoneGroup.innerHTML = `<label>MEMBER ${memberNum} Phone Number</label>
+      <input type="tel" id="member${i}Phone" placeholder="10-digit phone" pattern="[0-9]{10}" />`;
+
+    teamSection.appendChild(nameGroup);
+    teamSection.appendChild(emailGroup);
+    teamSection.appendChild(rollGroup);
+    teamSection.appendChild(phoneGroup);
+  }
+
+  teamSection.style.display = "block";
+
+  // Attach clear-invalid listeners to new inputs
+  teamSection.querySelectorAll("input").forEach((inp) => {
+    inp.addEventListener("input", () => {
+      inp.classList.remove("invalid");
+      updateFeeDisplay();
+    });
+  });
+}
+
+
+// ── Handle Event Selection: show team fields only for team events ──
+function handleEventSelection(selectedCb) {
+  const card = selectedCb.closest(".event-card");
+  const cardType = card ? card.getAttribute("data-type") : "solo";
+
+  if (selectedCb.checked && cardType === "team") {
+    const maxMembers = parseInt(card.getAttribute("data-max-members")) || 0;
+    buildTeamMemberFields(maxMembers);
+  } else {
+    // Solo event or unchecked — hide team fields
+    if (teamSection) {
+      teamSection.style.display = "none";
+      teamSection.innerHTML = "";
+    }
+  }
+}
+
+
+// ── Allow Only One Event + trigger team field logic ──
 eventCheckboxes.forEach((cb) => {
 
   cb.addEventListener("change", function () {
@@ -123,32 +214,37 @@ eventCheckboxes.forEach((cb) => {
       });
     }
 
+    handleEventSelection(this);
     updateFeeDisplay();
   });
 
 });
 
 
-// ── Get Team Members ──
+// ── Get Team Members (dynamic count) ──
 function getTeamMembers() {
 
   const members = [];
+  let i = 1;
 
-  for (let i = 1; i <= 4; i++) {
-
+  while (true) {
     const name = document.getElementById(`member${i}Name`);
+    const email = document.getElementById(`member${i}Email`);
     const roll = document.getElementById(`member${i}Roll`);
     const phone = document.getElementById(`member${i}Phone`);
 
-    if (name && name.value.trim()) {
+    if (!name) break; // no more member fields
 
+    if (name.value.trim()) {
       members.push({
         name: name.value.trim(),
+        email: email ? email.value.trim() : "",
         roll: roll ? roll.value.trim() : "",
         phone: phone ? phone.value.trim() : ""
       });
-
     }
+
+    i++;
   }
 
   return members;
@@ -177,6 +273,15 @@ function getSelectedEvents() {
 }
 
 
+// ── Get currently selected event card ──
+function getSelectedEventCard() {
+  for (const cb of eventCheckboxes) {
+    if (cb.checked) return cb.closest(".event-card");
+  }
+  return null;
+}
+
+
 // ── Calculate and display total fee ──
 function updateFeeDisplay() {
 
@@ -185,16 +290,18 @@ function updateFeeDisplay() {
   let totalFee = 0;
 
   const teamMembers = getTeamMembers();
+  const card = getSelectedEventCard();
+  const isTeamEvent = card && card.getAttribute("data-type") === "team";
 
-  const teamSize =
-    participationType && participationType.value === "team"
-      ? 1 + teamMembers.length
-      : 1;
+  const teamSize = isTeamEvent ? 1 + teamMembers.length : 1;
 
   selected.forEach((e) => {
 
     if (e.name === "HACKATHON") {
-      totalFee += 80 * teamSize;
+      totalFee += e.fee * teamSize;
+    } else if (e.name === "the triwizard contest") {
+      // ₹50 per person: 3 people = ₹150, 4 people = ₹200
+      totalFee += 50 * teamSize;
     } else {
       totalFee += e.fee;
     }
@@ -347,27 +454,50 @@ if(!valid){
 }
 
 
-    /* ── NEW TEAM MEMBER VALIDATION ── */
+    /* ── DYNAMIC TEAM MEMBER VALIDATION ── */
 
-    for (let i = 1; i <= 4; i++) {
+    const selectedCard = getSelectedEventCard();
+    const isTeamEvt = selectedCard && selectedCard.getAttribute("data-type") === "team";
+    const minMembers = isTeamEvt ? parseInt(selectedCard.getAttribute("data-min-members")) || 0 : 0;
+    const maxMembers = isTeamEvt ? parseInt(selectedCard.getAttribute("data-max-members")) || 0 : 0;
 
+    let filledMemberCount = 0;
+
+    for (let i = 1; i <= maxMembers; i++) {
+
+      const memberNum = i + 1; // Display number (Member 2, 3, ...)
       const nameField = document.getElementById(`member${i}Name`);
+      const emailField = document.getElementById(`member${i}Email`);
       const rollField = document.getElementById(`member${i}Roll`);
       const phoneField = document.getElementById(`member${i}Phone`);
 
-      const nameVal = nameField ? nameField.value.trim() : "";
+      if (!nameField) break;
+
+      const nameVal = nameField.value.trim();
+      const emailVal = emailField ? emailField.value.trim() : "";
       const rollVal = rollField ? rollField.value.trim() : "";
       const phoneVal = phoneField ? phoneField.value.trim() : "";
 
-      if (nameVal || rollVal || phoneVal) {
+      if (nameVal || emailVal || rollVal || phoneVal) {
 
-        if (!nameVal || !rollVal || !phoneVal) {
+        if (!nameVal || !emailVal || !rollVal || !phoneVal) {
 
-          showErrorMsg(`Please complete all fields for Member ${i} or leave them empty.`);
+          showErrorMsg(`Please complete all fields for Member ${memberNum} or leave them empty.`);
 
           if (nameField) nameField.classList.add("invalid");
+          if (emailField) emailField.classList.add("invalid");
           if (rollField) rollField.classList.add("invalid");
           if (phoneField) phoneField.classList.add("invalid");
+
+          return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+
+          emailField.classList.add("invalid");
+
+          showErrorMsg(`Member ${memberNum} email is not valid.`);
 
           return;
         }
@@ -376,13 +506,19 @@ if(!valid){
 
           phoneField.classList.add("invalid");
 
-          showErrorMsg(`Member ${i} phone must be a 10 digit number.`);
+          showErrorMsg(`Member ${memberNum} phone must be a 10 digit number.`);
 
           return;
         }
 
+        filledMemberCount++;
       }
 
+    }
+
+    if (isTeamEvt && filledMemberCount < minMembers) {
+      showErrorMsg(`This event requires at least ${minMembers} team member(s) (plus you). Please fill in their details.`);
+      return;
     }
 
 
@@ -496,5 +632,8 @@ document.addEventListener("DOMContentLoaded", () => {
   generateStars();
 
   generateParticles();
+
+  // Filter events based on initial participation type
+  filterEvents();
 
 });
