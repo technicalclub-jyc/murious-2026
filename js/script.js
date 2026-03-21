@@ -487,22 +487,27 @@ function initFirebase() {
     // SCROLL LOCK
     // ════════════════════════════════════════════════════
 
+    // ── Prevent standard scroll when locked ──
     window.addEventListener('wheel', (e) => {
-      if (!scrollLockActive) return;
-      e.preventDefault();
-      if (e.deltaY > 8) goTo(step + 1);
-      else if (e.deltaY < -8) goTo(step - 1);
+      if (scrollLockActive) {
+        e.preventDefault();
+        if (!isLocked) {
+          if (e.deltaY > 8) goTo(step + 1);
+          else if (e.deltaY < -8) goTo(step - 1);
+        }
+      }
     }, { passive: false });
 
     // ── Keyboard ──
     window.addEventListener('keydown', (e) => {
-      if (!scrollLockActive) return;
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        e.preventDefault();
-        goTo(step + 1);
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        goTo(step - 1);
+      if (scrollLockActive) {
+        if (['ArrowDown', 'PageDown', ' ', 'ArrowUp', 'PageUp'].includes(e.key)) {
+          e.preventDefault();
+          if (!isLocked) {
+            if (e.key === 'ArrowUp' || e.key === 'PageUp') goTo(step - 1);
+            else goTo(step + 1);
+          }
+        }
       }
     });
 
@@ -511,19 +516,31 @@ function initFirebase() {
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
+
+    // Prevent touch scrolling if locked
+    window.addEventListener('touchmove', (e) => {
+      if (scrollLockActive) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
     window.addEventListener('touchend', (e) => {
-      if (!scrollLockActive) return;
-      const delta = touchStartY - e.changedTouches[0].clientY;
-      if (delta > 40) goTo(step + 1);
-      else if (delta < -40) goTo(step - 1);
+      if (scrollLockActive && !isLocked) {
+        const delta = touchStartY - e.changedTouches[0].clientY;
+        if (delta > 40) goTo(step + 1);
+        else if (delta < -40) goTo(step - 1);
+      }
     });
 
     // ── Re-engage lock for castle animation 
     window.addEventListener('scroll', () => {
-      if (!scrollLockActive && window.scrollY < 10) {
-        step = 1;
-        scrollLockActive = true;
-        setCastleState(true);
+      if (!scrollLockActive) {
+        // If scrolling up into the Hero territory (approx < 90% view height),
+        // Snap back to Step 1 (Castle Up / Locked state).
+        // This prevents holding the scroll in the middle where castle bottom is exposed.
+        if (window.scrollY < windowH * 0.9) {
+          goTo(1);
+        }
       }
     }, { passive: true });
 

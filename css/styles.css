@@ -418,10 +418,11 @@ img {
   z-index: 6;
   pointer-events: none;
   will-change: transform;
+  
+  /* Transition for smooth animation including mask */
   transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
-  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
 }
+
 
 .hero-tree {
   position: absolute;
