@@ -785,7 +785,7 @@ img {
 .about-text p {
   margin-bottom: 20px;
   font-size: 1.05rem;
-  color: var(--text-muted);
+  color: #d1d5db;
 }
 
 .about-text .about-lead {
@@ -2030,7 +2030,7 @@ img {
 
 .contact-info>p {
   font-size: 1rem;
-  color: var(--text-muted);
+  color: #d1d5db;
   margin-bottom: 32px;
 }
 
@@ -2063,7 +2063,7 @@ img {
 
 .contact-item p {
   font-size: 0.92rem;
-  color: var(--text-muted);
+  color: #d1d5db;
 }
 
 .social-links {
